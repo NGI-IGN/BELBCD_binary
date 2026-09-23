@@ -16,26 +16,26 @@ import torch
 # All datasets use 256x256 patches for fair comparison
 DATASET_PRESETS = {
     "fotbcd": {
-        "data_root": "/workspace/datasets/FOTBCD-Binary",
-        "img_size": 256,
-        "crop_size": 256,
-        "original_size": 512,
-        "batch_size": 128,
-    },
-    "levircd+": {
-        "data_root": "/workspace/datasets/LEVIR-CD+",
-        "img_size": 256,
-        "crop_size": 256,
-        "original_size": 1024,
-        "batch_size": 128,
-    },
-    "whucd": {
-        "data_root": "/workspace/datasets/WHU-CD",
+        "data_root": "/mnt/default/FOTBCD-data",
         "img_size": 256,
         "crop_size": 256,
         "original_size": 256,
-        "batch_size": 128,
+        "batch_size": 16,
     },
+    # "levircd+": {
+    #     "data_root": "/workspace/datasets/LEVIR-CD+",
+    #     "img_size": 256,
+    #     "crop_size": 256,
+    #     "original_size": 1024,
+    #     "batch_size": 128,
+    # },
+    # "whucd": {
+    #     "data_root": "/workspace/datasets/WHU-CD",
+    #     "img_size": 256,
+    #     "crop_size": 256,
+    #     "original_size": 256,
+    #     "batch_size": 128,
+    # },
 }
 
 
@@ -64,6 +64,15 @@ class CFG:
     MODEL_NAME = "vit_large_patch16_dinov3.sat493m"
     ENCODER = MODEL_NAME
     PRETRAINED = True
+
+    # local copy of the backbone weights (hf_hub_download of timm/<MODEL_NAME>),
+    # used instead of fetching from the HF Hub when PRETRAINED is True
+    DINO_WEIGHTS = os.environ.get(
+        "DINO_WEIGHTS",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "weights_dino", "dinov3", "model.safetensors"),
+    )
+
     ENCODER_DIM = 256
     PATCH_SIZE = 16
     IN_CHANNELS = 3

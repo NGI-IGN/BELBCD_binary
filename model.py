@@ -3,7 +3,7 @@ Change Detection Benchmark Model.
 
 Siamese DINOv3 ViT encoder with CNN decoder for binary change detection.
 """
-
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -21,9 +21,17 @@ class SiameseEncoder(nn.Module):
         pretrained: bool = True,
         out_dim: int = 256,
         freeze_backbone: bool = False,
+        weights_path: str = None,
     ):
         super().__init__()
         self.out_dim = out_dim
+
+        # DINOv3 ViT backbone; a local weights file skips the HF Hub download
+        overlay = {}
+        if pretrained and weights_path:
+            if not os.path.isfile(weights_path):
+                raise FileNotFoundError(f"DINO weights not found: {weights_path}")
+            overlay = {"pretrained_cfg_overlay": {"file": weights_path}}
 
         # DINOv3 ViT backbone
         self.backbone = timm.create_model(
@@ -337,6 +345,7 @@ class HybridChangeDetector(nn.Module):
         freeze_vit: bool = False,
         shallow_dim: int = 32,
         use_refinement: bool = True,
+        encoder_weights: str = None,
     ):
         super().__init__()
         self.use_refinement = use_refinement
@@ -348,6 +357,7 @@ class HybridChangeDetector(nn.Module):
             pretrained=pretrained,
             out_dim=encoder_dim,
             freeze_backbone=freeze_vit,
+            weights_path=encoder_weights,
         )
 
         # ResNet34 for strong boundary features
@@ -403,6 +413,7 @@ def build_model(cfg) -> nn.Module:
         freeze_vit=getattr(cfg, "FREEZE_ENCODER", False),
         shallow_dim=getattr(cfg, "SHALLOW_DIM", 32),
         use_refinement=getattr(cfg, "USE_REFINEMENT", True),
+        encoder_weights=getattr(cfg, "DINO_WEIGHTS", None),
     )
 
 
