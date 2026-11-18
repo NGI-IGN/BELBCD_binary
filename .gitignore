@@ -30,4 +30,5 @@ venv/
 .weights_dino
 .runs/**/
 runs/**/tensorboard/**
-.weights_dino/dinov3/model.safetensors
+.weights_dino/dinov3/model.safetensorsweights_dino/
+diagnose_*.json
