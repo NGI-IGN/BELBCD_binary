@@ -1,0 +1,33 @@
+# Data — never commit raster/vector data or generated tiles
+data/
+*.tif
+*.tiff
+*.gdb/
+*.gpkg
+*.img
+outputs/
+*.png
+
+# Model artifacts
+*.pt
+*.pth
+*.ckpt
+
+# Python
+__pycache__/
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.vscode/
+.weights_dino
+.runs/**/
+runs/**/tensorboard/**
+.weights_dino/dinov3/model.safetensors
