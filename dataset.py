@@ -19,7 +19,6 @@ from torch.utils.data import Dataset, DataLoader, Subset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-
 # =============================================================================
 # FOTBCD Dataset (Binary format) with Patch Extraction
 # =============================================================================
@@ -74,10 +73,15 @@ class FOTBCDDataset(Dataset):
         # Calculate crops per dimension
         self.crops_per_dim = original_size // crop_size
 
+        _cand = osp.join(self.root, "images", self.split)
+
         # Set data directory
-        self._data_dir = osp.join(self.root, "images", self.split)
+        self._data_dir = _cand if osp.isdir(osp.join(_cand, "before")) else osp.join(self.root, self.split)
+        
+        # self._data_dir = osp.join(self.root, "images", self.split)
         if not osp.exists(osp.join(self._data_dir, "before")):
-            raise FileNotFoundError(f"Directory not found: {osp.join(self._data_dir, 'before')}")
+            # raise FileNotFoundError(f"Directory not found: {osp.join(self._data_dir, 'before')}")
+            raise FileNotFoundError(f"'before' not found under {self.root}/[images/]{self.split}")
 
         # Load image file list
         self._image_files = self._load_image_files()
@@ -126,10 +130,10 @@ class FOTBCDDataset(Dataset):
             ])
 
         # Normalize and convert to tensor
-        transforms.extend([
-            A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            ToTensorV2(),
-        ])
+        # transforms.extend([
+        #     A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        #     ToTensorV2(),
+        # ])
 
         return A.Compose(transforms, additional_targets={"image2": "image"})
 

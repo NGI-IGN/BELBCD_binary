@@ -10,7 +10,8 @@ Usage:
 
 import os
 import torch
-
+import timm as _timm
+from timm.data import resolve_model_data_config as _resolve_dc
 
 # Dataset presets - dataset-specific paths and settings
 # All datasets use 256x256 patches for fair comparison
@@ -36,6 +37,13 @@ DATASET_PRESETS = {
     #     "original_size": 256,
     #     "batch_size": 128,
     # },
+    # "belbcd": {
+    #     "data_root": "/mnt/default/FOTBCD-data/binary_23",
+    #     "img_size": 256,
+    #     "crop_size": 256,
+    #     "original_size": 256,
+    #     "batch_size": 16,
+    # },
 }
 
 
@@ -44,6 +52,7 @@ class CFG:
     # Dataset selection (override via env: DATASET=fotbcd python train.py)
     # ==========================================================================
     DATASET = os.environ.get("DATASET", "fotbcd")
+    print(f"Using dataset: {DATASET}")
 
     # Load dataset-specific settings
     _preset = DATASET_PRESETS.get(DATASET, DATASET_PRESETS["fotbcd"])
@@ -80,6 +89,11 @@ class CFG:
     FREEZE_ENCODER = True
     USE_REFINEMENT = True
     SHALLOW_DIM = 32
+
+    _dc = _resolve_dc(model=_timm.create_model(MODEL_NAME, pretrained=False))
+    NORM_MEAN = list(_dc["mean"])
+    NORM_STD  = list(_dc["std"])
+    del _timm, _resolve_dc, _dc
 
     # ==========================================================================
     # Training (step-based for fair cross-dataset comparison)
