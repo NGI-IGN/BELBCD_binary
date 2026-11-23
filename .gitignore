@@ -32,3 +32,13 @@ venv/
 runs/**/tensorboard/**
 .weights_dino/dinov3/model.safetensorsweights_dino/
 diagnose_*.json
+
+# new analysis files
+FOTBCD_pipeline_trace.ipynb
+analysis/
+check_prob.py
+compare_models.py
+diagnose_prob_cap.py
+inference_validation.py
+mlflow.db
+weights_dino/
