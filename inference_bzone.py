@@ -21,6 +21,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 from evaluate import load_model  # reuse your existing model loader
+from config import CFG   # at the top of inference_bzone.py
 
 
 def get_args():
@@ -69,9 +70,7 @@ class PairedFolderDataset(Dataset):
         self.transform = transforms.Compose([
             transforms.Resize((img_size, img_size)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3),
-            # 1. normalization: match training
-            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.Normalize(mean=CFG.NORM_MEAN, std=CFG.NORM_STD),
         ])
 
     def __len__(self):

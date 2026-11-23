@@ -10,40 +10,19 @@ Usage:
 
 import os
 import torch
-import timm as _timm
+import timm
 from timm.data import resolve_model_data_config as _resolve_dc
 
 # Dataset presets - dataset-specific paths and settings
 # All datasets use 256x256 patches for fair comparison
 DATASET_PRESETS = {
     "fotbcd": {
-        "data_root": "/mnt/default/FOTBCD-data",
-        "img_size": 256,
-        "crop_size": 256,
-        "original_size": 256,
-        "batch_size": 16,
+        "data_root": os.environ.get("DATA_ROOT", "/mnt/default/FOTBCD-data/binary_21z"),
+        "img_size": int(os.environ.get("IMG_SIZE", "256")),
+        "crop_size": int(os.environ.get("CROP_SIZE", "256")),
+        "original_size": int(os.environ.get("ORIGINAL_SIZE", "256")),
+        "batch_size": int(os.environ.get("BATCH_SIZE", "16")),
     },
-    # "levircd+": {
-    #     "data_root": "/workspace/datasets/LEVIR-CD+",
-    #     "img_size": 256,
-    #     "crop_size": 256,
-    #     "original_size": 1024,
-    #     "batch_size": 128,
-    # },
-    # "whucd": {
-    #     "data_root": "/workspace/datasets/WHU-CD",
-    #     "img_size": 256,
-    #     "crop_size": 256,
-    #     "original_size": 256,
-    #     "batch_size": 128,
-    # },
-    # "belbcd": {
-    #     "data_root": "/mnt/default/FOTBCD-data/binary_23",
-    #     "img_size": 256,
-    #     "crop_size": 256,
-    #     "original_size": 256,
-    #     "batch_size": 16,
-    # },
 }
 
 
@@ -90,15 +69,15 @@ class CFG:
     USE_REFINEMENT = True
     SHALLOW_DIM = 32
 
-    _dc = _resolve_dc(model=_timm.create_model(MODEL_NAME, pretrained=False))
+    _dc = _resolve_dc(model=timm.create_model(MODEL_NAME, pretrained=False))
     NORM_MEAN = list(_dc["mean"])
     NORM_STD  = list(_dc["std"])
-    del _timm, _resolve_dc, _dc
+    
 
     # ==========================================================================
     # Training (step-based for fair cross-dataset comparison)
     # ==========================================================================
-    TOTAL_STEPS = 50000  # Same for all datasets (fair comparison)
+    TOTAL_STEPS = int(os.environ.get("TOTAL_STEPS", 50000))  # Same for all datasets (fair comparison)
     LR = 4e-4
     WEIGHT_DECAY = 1e-4
     OPTIMIZER = "adamw"
@@ -127,7 +106,7 @@ class CFG:
     # Step-based logging (for fair cross-dataset comparison)
     # ==========================================================================
     LOG_EVERY_STEPS = 500  # Log train metrics every N steps
-    VAL_EVERY_STEPS = 1000  # Run validation every N steps
+    VAL_EVERY_STEPS = int(os.environ.get("VAL_EVERY_STEPS", 1000))
     SAVE_EVERY_STEPS = 5000  # Save checkpoint every N steps
     CROSS_EVAL_EVERY_STEPS = 2000  # Cross-dataset evaluation every N steps
 
@@ -139,11 +118,11 @@ class CFG:
     # ==========================================================================
     # Experiment naming
     # ==========================================================================
-    EXPERIMENT_NAME = f"{DATASET}_{IMG_SIZE}px_bs{BATCH_SIZE}"
+    EXPERIMENT_NAME = f"{DATASET}_{os.path.basename(DATA_ROOT.rstrip('/'))}_{IMG_SIZE}px_bs{BATCH_SIZE}"
 
     # ==========================================================================
     # Quick test mode
     # ==========================================================================
-    QUICK_TEST = False
+    QUICK_TEST = os.environ.get("QUICK_TEST", "0") == "1"
     QUICK_TEST_TRAIN_SAMPLES = 100
     QUICK_TEST_VAL_SAMPLES = 50
